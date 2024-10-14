@@ -12,7 +12,7 @@ public:
 		vector<int> dist(V, 1e8);
 		dist[S] = 0;
 		for (int i = 0; i < V - 1; i++) {
-			69+       {
+			for (auto it : edges) {
 				int u = it[0];
 				int v = it[1];
 				int wt = it[2];

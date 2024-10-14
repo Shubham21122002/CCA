@@ -1,61 +1,61 @@
 #include <iostream>
 #include <vector>
+#include <string>
+
 using namespace std;
 
-pair<int,int> findminmax(vector<int> &v, int s, int e) {
-     
-     int mx, mn;
+void backtrack(int row, int n, vector<int>& queens, vector<vector<string>>& solutions);
+bool isValid(int row, int col, const vector<int>& queens);
 
-     if(s == e) {
-
-        mn = v[s];
-        mx = v[s];
-     }
-     else if ((s+1) == e) {
-
-        if(v[e] > v[s]) { 
-
-            mn = v[s];
-            mx = v[e];
-        }
-        else {
-            mn = v[e];
-            mx = v[s]; 
-
-        }
-     }
-
-     else {
-
-
-        int mid = (s + e)/2;
-
-        auto left = findminmax(v,s,mid);
-        auto right = findminmax(v,mid+1,e);
-
-        mn=min(left.first,right.first);
-        mx=max(left.second,right.second);
-
-     }
-
-    return {mn,mx};
+vector<vector<string>> solveNQueens(int n) {
+    vector<vector<string>> solutions;
+    vector<int> queens(n, -1); // To store column positions of queens
+    backtrack(0, n, queens, solutions);
+    return solutions;
 }
-int main() {
-    int n;
-    cout << "Enter the size of the array: ";
-    cin >> n;
-    
-    vector<int> v(n);
-    cout << "Enter the elements of the array:" << endl;
-    for (int i = 0; i < n; i++) {
-        cin >> v[i];
+
+void backtrack(int row, int n, vector<int>& queens, vector<vector<string>>& solutions) {
+    if (row == n) {
+        // If all queens are placed, create a solution board
+        vector<string> board(n, string(n, '.'));
+        for (int i = 0; i < n; ++i) {
+            board[i][queens[i]] = 'Q';
+        }
+        solutions.push_back(board);
+        return;
     }
-   
-    pair<int, int>ans = findminmax(v,0,n-1);
-    cout<<"Minimum : "<< ans.first << endl;
-    cout<<"Maximum : "<< ans.second << endl;
 
+    for (int col = 0; col < n; ++col) {
+        if (isValid(row, col, queens)) {
+            queens[row] = col; // Place the queen
+            backtrack(row + 1, n, queens, solutions); // Recur to place the next queen
+            queens[row] = -1; // Backtrack
+        }
+    }
+}
 
+bool isValid(int row, int col, const vector<int>& queens) {
+    for (int i = 0; i < row; ++i) {
+        // Check if the column or diagonals are threatened
+        if (queens[i] == col || 
+            queens[i] - i == col - row || 
+            queens[i] + i == col + row) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int main() {
+    int n = 4; // Change this value for different sizes of the board
+    vector<vector<string>> solutions = solveNQueens(n);
+
+    for (const auto& solution : solutions) {
+        for (const auto& row : solution) {
+            cout << row << endl;
+        }
+        cout << endl;
+    }
 
     return 0;
 }
