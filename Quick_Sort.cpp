@@ -20,7 +20,7 @@ int partition(vector<int>& v, int s, int e) {
 void quick_sort(vector<int>& v, int s, int e) {
     if (s < e) {
         int p_index = partition(v, s, e);
-        //quick_sort(v, s, p_index - 1);
+        quick_sort(v, s, p_index - 1);
         quick_sort(v, p_index + 1, e);
     }
 }
