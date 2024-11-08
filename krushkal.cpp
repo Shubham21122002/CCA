@@ -1,73 +1,57 @@
 #include <iostream>
-#include <climits> // For INT_MAX
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
-int i, j, k, a, b, u, v, n, ne = 1;
-int minimum, mincost = 0, cost[9][9], parent[9] = {0};
-
-int find(int);
-int uni(int, int);
-
-int main()
-{
-    cout << "\n\tImplementation of Kruskal's algorithm\n";
-    cout << "\nEnter the number of vertices: ";
-    cin >> n;
-    cout << "\nEnter the cost adjacency matrix:\n";
-
-    for (i = 1; i <= n; i++)
-    {
-        for (j = 1; j <= n; j++)
-        {
-            cin >> cost[i][j];
-            if (cost[i][j] == 0)
-                cost[i][j] = INT_MAX; // Using INT_MAX instead of 999 for infinity
-        }
+struct Edge {
+    int u, v, weight;
+    bool operator<(const Edge& other) const {
+        return weight < other.weight;
     }
+};
 
-    cout << "The edges of Minimum Cost Spanning Tree are\n";
-
-    while (ne < n)
-    {
-        for (i = 1, minimum = INT_MAX; i <= n; i++)
-        {
-            for (j = 1; j <= n; j++)
-            {
-                if (cost[i][j] < minimum)
-                {
-                    minimum = cost[i][j];
-                    a = u = i;
-                    b = v = j;
-                }
-            }
-        }
-        u = find(u);
-        v = find(v);
-        if (uni(u, v))
-        {
-            cout << ne++ << " edge (" << a << ", " << b << ") = " << minimum << endl;
-            mincost += minimum;
-        }
-        cost[a][b] = INT_MAX; // Mark as visited
-    }
-    cout << "\n\tMinimum cost = " << mincost << endl;
-    return 0;
+int findParent(int u, vector<int>& parent) {
+    if (u != parent[u])
+        parent[u] = findParent(parent[u], parent);
+    return parent[u];
 }
 
-int find(int i)
-{
-    while (parent[i])
-        i = parent[i];
-    return i;
+void unionSets(int u, int v, vector<int>& parent, vector<int>& rank) {
+    u = findParent(u, parent);
+    v = findParent(v, parent);
+    if (u != v) {
+        if (rank[u] < rank[v])
+            swap(u, v);
+        parent[v] = u;
+        if (rank[u] == rank[v])
+            rank[u]++;
+    }
 }
 
-int uni(int i, int j)
-{
-    if (i != j)
-    {
-        parent[j] = i;
-        return 1;
+int kruskal(int n, vector<Edge>& edges) {
+    sort(edges.begin(), edges.end());
+    vector<int> parent(n), rank(n, 0);
+    for (int i = 0; i < n; ++i) parent[i] = i;
+
+    int mstWeight = 0;
+    for (const auto& edge : edges) {
+        if (findParent(edge.u, parent) != findParent(edge.v, parent)) {
+            mstWeight += edge.weight;
+            unionSets(edge.u, edge.v, parent, rank);
+            cout << "Edge: " << edge.u << " - " << edge.v << " | Weight: " << edge.weight << endl;
+        }
     }
+    return mstWeight;
+}
+
+int main() {
+    int n = 4; // Number of vertices
+    vector<Edge> edges = {
+        {0, 1, 10}, {0, 2, 6}, {0, 3, 5}, {1, 3, 15}, {2, 3, 4}
+    };
+
+    int mstWeight = kruskal(n, edges);
+    cout << "Total weight of MST: " << mstWeight << endl;
     return 0;
 }
