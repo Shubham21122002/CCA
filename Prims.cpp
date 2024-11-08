@@ -1,62 +1,62 @@
-#include <iostream>
-#include <vector>
-#include <climits>  // For INT_MAX
+
+#include <bits/stdc++.h>
 using namespace std;
 
-#define V 5  // Number of vertices in the graph
+class Solution
+{
+public:
+	//Function to find sum of weights of edges of the Minimum Spanning Tree.
+	int spanningTree(int V, vector<vector<int>> adj[])
+	{
+		priority_queue<pair<int, int>,
+		vector<pair<int, int> >, greater<pair<int, int>>> pq;
 
-int findMinVertex(vector<int>& key, vector<bool>& inMST) {
-    int minKey = INT_MAX;
-    int minIndex = -1;
+		vector<int> vis(V, 0);
+		// {wt, node}
+		pq.push({0, 0});
+		int sum = 0;
+		while (!pq.empty()) {
+			auto it = pq.top();
+			pq.pop();
+			int node = it.second;
+			int wt = it.first;
 
-    for (int v = 0; v < V; v++) {
-        if (!inMST[v] && key[v] < minKey) {
-            minKey = key[v];
-            minIndex = v;
-        }
-    }
+			if (vis[node] == 1) continue;
+			// add it to the mst
+			vis[node] = 1;
+			sum += wt;
+			for (auto it : adj[node]) {
+				int adjNode = it[0];
+				int edW = it[1];
+				if (!vis[adjNode]) {
+					pq.push({edW, adjNode});
+				}
+			}
+		}
+		return sum;
+	}
+};
 
-    return minIndex;
-}
-
-void primsMST(int graph[V][V]) {
-    vector<int> parent(V, -1);  // To store the MST
-    vector<int> key(V, INT_MAX);  // To store minimum weights
-    vector<bool> inMST(V, false);  // To track vertices included in MST
-
-    // Start with the first vertex
-    key[0] = 0;
-    parent[0] = -1;
-
-    for (int count = 0; count < V - 1; count++) {
-        int u = findMinVertex(key, inMST);
-        inMST[u] = true;
-
-        for (int v = 0; v < V; v++) {
-            if (graph[u][v] && !inMST[v] && graph[u][v] < key[v]) {
-                parent[v] = u;
-                key[v] = graph[u][v];
-            }
-        }
-    }
-
-    // Print the MST
-    cout << "Edge \tWeight\n";
-    for (int i = 1; i < V; i++) {
-        cout << parent[i] << " - " << i << "\t" << graph[i][parent[i]] << "\n";
-    }
-}
 
 int main() {
-    // Example graph (adjacency matrix)
-    int graph[V][V] = {
-        {0, 2, 0, 6, 0},
-        {2, 0, 3, 8, 5},
-        {0, 3, 0, 0, 7},
-        {6, 8, 0, 0, 9},
-        {0, 5, 7, 9, 0}
-    };
 
-    primsMST(graph);
-    return 0;
+	int V = 5;
+	vector<vector<int>> edges = {{0, 1, 2}, {0, 2, 1}, {1, 2, 1}, {2, 3, 2}, {3, 4, 1}, {4, 2, 2}};
+	vector<vector<int>> adj[V];
+	for (auto it : edges) {
+		vector<int> tmp(2);
+		tmp[0] = it[1];
+		tmp[1] = it[2];
+		adj[it[0]].push_back(tmp);
+
+		tmp[0] = it[0];
+		tmp[1] = it[2];
+		adj[it[1]].push_back(tmp);
+	}
+
+	Solution obj;
+	int sum = obj.spanningTree(V, adj);
+	cout << "The sum of all the edge weights: " << sum << endl;
+
+	return 0;
 }
