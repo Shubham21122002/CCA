@@ -49,7 +49,7 @@ void AStar(int start, int goal, vector<pair<int, int>> graph[V]) {
             int newG = gScore[current] + cost;
             if (newG < gScore[next]) {
                 gScore[next] = newG;
-                int f = newG + heuristic[next];  // f = g + h
+                int f = newG + heuristic[next];  
                 pq.push({f, next});
                 parent[next] = current;
             }
